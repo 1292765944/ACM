@@ -5,7 +5,7 @@ using namespace std;
 #define N 1000010
 int a[N],b[N],d[N];
 int c[N];                //树状数组中的元素
-int m1[N];  //（匹配串中）m1表示小于，m2表示小于等于
+int m1[N];  //（匹配串中）m1表示小于
 int n,k,s;
 int next[N];
 int all;
