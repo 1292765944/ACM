@@ -1,0 +1,57 @@
+
+解题思路：（此题的原型就是上一篇日志nlogn最长上升子序列(LIS) ）显然，最终的答案序列中矩形的左下角和右上角点坐标一定是按x严格递增的。这就给了我们将二维问题降至一维的思路。将每个矩形视为两个点（左下角和右上   角）的组合。将这2N 个点按照x坐标排序。这样可以将问题从二维空间降至一维空间：维护数组y[m] ，表示长度为m矩形序列的最后一个矩形y坐标最小是多少。依次遍历这排序后的2N 个点。若当前点为矩形的左下角，二分查找该点的y坐标在F数组中的位置。若当前点为矩形的右上角，则用其左下角的值更新F 数组。之所以不可以立即更新F 数组，是因为要求矩形序列中后一个矩形的左下角严格在前一个的右上方。
+[cpp] view plaincopy
+
+    #include<algorithm>  
+    #include<iostream>  
+    #include<cstdio>  
+    #include<cstring>  
+    #include<vector>  
+    using namespace std;  
+      
+    const int MV=200010;  
+      
+    struct point{  
+        int x,y,flag,id;  
+        bool operator<(const point& t)const{  
+            if(x!=t.x)return x<t.x;  
+            return flag < t.flag;  
+        }  
+    }p[MV];  
+      
+    int y[MV], pos[MV];  
+      
+    int main(){  
+        int n, T;  
+        scanf("%d", &T);  
+        while(T--){  
+            scanf("%d", &n);  
+            if(n==0)break;  
+            for( int i=0;i<n;i++){  
+                scanf("%d%d",&p[2*i].x,&p[2*i].y);  
+                p[2*i].flag=0;  
+      
+                scanf("%d%d",&p[2*i+1].x,&p[2*i+1].y);  
+                p[2*i+1].flag=1;  
+      
+                p[2*i].id=p[2*i+1].id=i;  
+            }  
+            n*=2;  
+            sort(p,p+n);  
+      
+            int cnt=0;  
+      
+            for(int i=0;i<n;i++){  
+                if(p[i].flag == 0){  
+                        pos[p[i].id] = lower_bound(y+1, y+1+cnt, p[i].y) - y ;  
+                } else {  
+                    int tp = pos[p[i].id];  
+                    if(tp > cnt)y[++cnt] = p[i].y;  
+                    else y[tp] = min(y[tp], p[i].y);  
+                }  
+            }  
+      
+            printf("%d\n",cnt);  
+        }  
+        return 0;  
+    }  

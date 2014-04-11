@@ -1,0 +1,60 @@
+#include<cstdio>
+#include<cstring>
+#include<cstdlib>
+#include<iostream>
+#include<algorithm>
+
+using namespace std;
+
+//数组必须要开到150000以上才能过，至于为什么maxn为什么要这么大，不是很清楚
+const int maxn=151010;
+
+int rad[maxn];
+char str[maxn],s[2*maxn+2];
+
+//函数中参数说明：若原字符串是"abcd"，
+//则str为"$#a#b#c#d#"，n为加上'#'以后的字符串长度        其中$的作用是哨兵
+//数组rad[]中记录的是回文子串的半径
+void Manacher(int rad[],char str[],int n)
+{
+   int i,mx=0,id;
+   for(i=1;i<n;i++)
+   {
+      if(mx>=i) rad[i]=min(rad[2*id-i],mx-i);
+      else rad[i]=0;
+      for(;str[i+rad[i]]==str[i-rad[i]];rad[i]++)
+         ;
+      rad[i]--;
+      if(mx<rad[i]+i)
+      {
+         mx=rad[i]+i;
+         id=i;
+      }
+   }
+}
+
+int main()
+{
+   while(scanf("%s",&str[1])!=EOF)
+   {
+      //memset(rad,0,sizeof(rad));
+      int len=strlen(&str[1]);
+      s[0]='$';
+      for(int i=1;i<=len;i++)
+      {
+          s[2*i-1]='#';
+          s[2*i]=str[i];
+      }
+      s[2*len+1]='#';
+      s[2*len+2]='@';
+      Manacher(rad,s,2*len+2);
+
+      //找出最长的回文子串的长度
+      int ans=1;
+      for(int i=1;i<2*len+2;i++)
+         ans=max(ans,rad[i]);
+      printf("%d\n",ans);
+   }
+
+   return 0;
+}

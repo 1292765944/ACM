@@ -1,0 +1,135 @@
+1.后缀数组求不同字串个数
+void solve(int n){  
+    long long sum=0;  
+    sum+=n-sa[1];  
+    for(int i=2;i<=n;i++)  
+        sum+=n-sa[i]-height[i];  
+    printf("%lld\n",sum);  
+}  
+
+2 POJ 1743
+
+题目大意：给定一个序列，可从中选择一个子段，可以对这个子段各个数进行增加k或者减少k的操作，问满足子段长度大于5并且两个子段不重叠的最长的重复子段长度是多少？
+
+#include<cstdio>
+#include<cstring>
+#include<algorithm>
+using namespace std;
+#define MAXN 20010
+int n,r[20010];
+int sa[20010];
+int wa[MAXN],wb[MAXN],wv[MAXN],ws[MAXN];
+int height[MAXN],rank[MAXN];
+inline bool cmp(int *r,int a,int b,int len){
+    return r[a]==r[b]&&r[a+len]==r[b+len];
+}
+void SA(int n,int m){
+    int i,j,p,*x=wa,*y=wb,*t;
+    for(i=0;i<m;i++)
+        ws[i]=0;
+    for(i=0;i<n;i++)
+        ws[x[i]=r[i]]++;
+    for(i=1;i<m;i++)
+        ws[i]+=ws[i-1];
+    for(i=n-1;i>=0;i--)
+        sa[--ws[x[i]]]=i;
+    for(j=p=1;p<n;j<<=1,m=p){
+        for(p=0,i=n-j;i<n;i++)
+            y[p++]=i;
+        for(i=0;i<n;i++){
+            if(sa[i]>=j)
+                y[p++]=sa[i]-j;
+        }
+        for(i=0;i<m;i++)
+            ws[i]=0;
+        for(i=0;i<n;i++)
+            ws[wv[i]=x[y[i]]]++;
+        for(i=1;i<m;i++)
+            ws[i]+=ws[i-1];
+        for(i=n-1;i>=0;i--)
+            sa[--ws[wv[i]]]=y[i];
+        for(t=x,x=y,y=t,x[sa[0]]=0,p=i=1;i<n;i++)
+            x[sa[i]]=cmp(y,sa[i-1],sa[i],j)?p-1:p++;
+    }
+}
+void Height(int n){
+    int i,j,k=0;
+    for(i=1;i<=n;i++)                                     //注意sa[0]是以r[n-1]开始的串即0，所以这里忽略sa[0]。
+        rank[sa[i]]=i;
+    for(i=0;i<n;height[rank[i++]]=k)
+        for(k?k--:0,j=sa[rank[i]-1];r[i+k]==r[j+k];k++);
+}
+bool ok(int mid){
+    int i,maxk,mink;
+    maxk=mink=sa[1];
+    for(i=2;i<n;i++){
+        if(height[i]>=mid){                //这里是>=
+            maxk=max(maxk,sa[i]);
+            mink=min(mink,sa[i]);
+            if(maxk-mink>mid)              //注意这里要>
+                return 1;
+        }
+        else
+            maxk=mink=sa[i];
+    }
+    return 0;
+}
+int main(){
+    int i,j;
+    while(scanf("%d",&n)){
+        memset(height,0,sizeof(height));
+        if(n==0)break;
+        for(i=0;i<n;i++)
+            scanf("%d",&r[i]);
+        for(i=0;i<n-1;i++)
+            r[i]=r[i+1]-r[i]+88;
+        r[n-1]=0;
+        SA(n,177);
+        Height(n-1);
+        int high=n,low=4;
+        int ans=0;
+        while(low<=high){
+            int mid=(high+low)>>1;
+            if(ok(mid)){
+                ans=mid;
+                low=mid+1;
+            }
+            else
+                high=mid-1;
+        }
+        if(ans>=4)
+            printf("%d\n",ans+1);
+        else
+            printf("0\n");
+    }
+}
+
+3 HDU 3948
+主要是去重比较难想
+
+主要思想就是：按sa数组i从2开始枚举到n，pre1记录的是上一次计算过的回文串，所以先与height[i]取小值，代表这次计算重复的回文串，然后与实际的回文串相比较计入总和。
+
+然后更新pre1，继续向下迭代。这里回文的两个后缀是不会重复计算的，因为在SA数组中如果有夹在之间的后缀，那么pre1的大小是不会变小的，所以不会被重复计算
+
+pre2同理更新。
+void solve(int n){  
+    int i,j,ans=0,pre1=0,pre2=0;  
+    st(n);  
+    for(i=2;i<=n;i++){  
+        pre1=min(pre1,height[i]);  
+        j=RMQ_MIN(i,rk[n-1-sa[i]]);  
+        if(j>pre1){  
+            ans+=j-pre1;  
+            pre1=j;  
+        }  
+        pre2=min(pre2,height[i]);  
+        j=RMQ_MIN(i,rk[n-sa[i]]);  
+        if(j>pre2){  
+            ans+=j-pre2;  
+            pre2=j;  
+        }  
+    }  
+    printf("Case #%d: %d\n",cas,ans);  
+}  
+
+
